@@ -96,7 +96,7 @@ const mvps = [
   // 기업/산업 (11개)
   {
     name: "바이칼시스템즈 홈페이지",
-    thumbnail: "/images/baikal_project_01.jpg",
+      thumbnail: "/images/mvp_project_04.jpg",
     category: "기업/산업",
     oneLiner: "기업 홈페이지 구축.",
     link: "https://mvp-project-04.vercel.app/",
