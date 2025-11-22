@@ -1,15 +1,15 @@
 import { useState, useMemo, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import { Canvas } from '@react-three/fiber'
-import { Stars, Float, Text } from '@react-three/drei'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
+import { Stars, Float, Text, OrbitControls } from '@react-three/drei'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
 import { Doughnut, Bar } from 'react-chartjs-2'
 import { Search, Filter, Moon, Sun, Zap, Rocket, Code, Users, Award, ExternalLink, Sparkles } from 'lucide-react'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
-// 3D Background Component
-function Background3D() {
+// 3D Scene Component (내부 컴포넌트)
+function Scene() {
   const { camera, gl } = useThree()
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
 
@@ -20,31 +20,44 @@ function Background3D() {
         y: -(event.clientY / window.innerHeight) * 2 + 1,
       })
     }
-    gl.domElement.addEventListener('mousemove', handleMouseMove)
-    return () => gl.domElement.removeEventListener('mousemove', handleMouseMove)
+    if (gl?.domElement) {
+      gl.domElement.addEventListener('mousemove', handleMouseMove)
+      return () => gl.domElement.removeEventListener('mousemove', handleMouseMove)
+    }
   }, [gl])
 
   useFrame(() => {
-    camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05
-    camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05
+    if (camera) {
+      camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05
+      camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05
+    }
   })
 
   return (
+    <>
+      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      <Float speed={1.4} rotationIntensity={1} floatIntensity={2}>
+        <Text
+          position={[0, 0, -2]}
+          fontSize={0.5}
+          color="#00ffff"
+          anchorX="center"
+          anchorY="middle"
+        >
+          GROK PORTFOLIO
+        </Text>
+      </Float>
+      <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+    </>
+  )
+}
+
+// 3D Background Component (래퍼)
+function Background3D() {
+  return (
     <Canvas camera={{ position: [0, 0, 1] }}>
       <Suspense fallback={null}>
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-        <Float speed={1.4} rotationIntensity={1} floatIntensity={2}>
-          <Text
-            position={[0, 0, -2]}
-            fontSize={0.5}
-            color="#00ffff"
-            anchorX="center"
-            anchorY="middle"
-          >
-            GROK PORTFOLIO
-          </Text>
-        </Float>
-        <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+        <Scene />
       </Suspense>
     </Canvas>
   )
